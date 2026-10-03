@@ -34,6 +34,8 @@ const PRODUCTION_MODE = process.env.NODE_ENV === "production";
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://127.0.0.1:4173";
 const HOST = process.env.HOST || "127.0.0.1";
 const ADMIN_KEY = process.env.ROSHNI_ADMIN_KEY || "";
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/+$/, "");
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
 let googleTranslateWiz = null;
 let googleTranslateBatchNumber = 0;
 
@@ -98,6 +100,94 @@ function purgeDeletedAccounts() {
 }
 
 purgeDeletedAccounts();
+
+function supabaseHeaders() {
+  return {
+    "apikey": SUPABASE_KEY,
+    "Authorization": `Bearer ${SUPABASE_KEY}`,
+    "Content-Type": "application/json"
+  };
+}
+
+async function syncAccountToSupabase(account) {
+  if (!SUPABASE_URL || !SUPABASE_KEY || !account?.id) return;
+  try {
+    const row = {
+      id: account.id,
+      email: account.email,
+      display_name: account.displayName || "",
+      password_record: account.password,
+      sessions: account.sessions || [],
+      revision: account.revision || 0,
+      updated_at: account.updatedAt || now(),
+      workspace: account.workspace || null,
+      deleted_at: account.deletedAt || null,
+      restore_until: account.restoreUntil || null
+    };
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/accounts`, {
+      method: "POST",
+      headers: {
+        ...supabaseHeaders(),
+        "Prefer": "resolution=merge-duplicates"
+      },
+      body: JSON.stringify(row)
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.warn(`[Supabase] Sync failed (${response.status}):`, text);
+    }
+  } catch (err) {
+    console.warn("[Supabase] Sync network error:", err.message);
+  }
+}
+
+async function loadFromSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) return;
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/accounts?select=*`, {
+      headers: supabaseHeaders()
+    });
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log("[Supabase] 'accounts' table not found yet. Run the SQL schema in Supabase SQL Editor.");
+      } else {
+        const text = await response.text().catch(() => "");
+        console.warn(`[Supabase] Load failed (${response.status}):`, text);
+      }
+      return;
+    }
+    const rows = await response.json();
+    if (Array.isArray(rows)) {
+      for (const row of rows) {
+        if (!row.id) continue;
+        const account = {
+          id: row.id,
+          email: row.email,
+          displayName: row.display_name,
+          password: row.password_record,
+          sessions: row.sessions || [],
+          revision: row.revision || 0,
+          updatedAt: row.updated_at,
+          workspace: row.workspace,
+          ...(row.deleted_at ? { deletedAt: row.deleted_at, restoreUntil: row.restore_until } : {})
+        };
+        if (row.deleted_at) {
+          deletedDatabase.accounts[row.id] = account;
+        } else {
+          database.accounts[row.id] = account;
+        }
+      }
+      saveJson(DB_FILE, database);
+      if (rows.length > 0) {
+        console.log(`[Supabase] Synced ${rows.length} account(s) from cloud.`);
+      }
+    }
+  } catch (err) {
+    console.warn("[Supabase] Load network error:", err.message);
+  }
+}
+
+loadFromSupabase();
 
 function now() {
   return new Date().toISOString();
@@ -233,6 +323,7 @@ function createSession(account, req = null) {
   account.sessions = (account.sessions || []).filter((item) => item.expiresAt > Date.now());
   account.sessions.push({ id: crypto.randomUUID(), hash: hash(token), createdAt: now(), lastSeenAt: now(), deviceLabel: String(req?.headers["x-device-label"] || process.env.DEFAULT_DEVICE_LABEL || "browser").slice(0, 80), userAgent: String(req?.headers["user-agent"] || "").slice(0, 240), expiresAt: Date.now() + (SESSION_DAYS * 24 * 60 * 60 * 1000) });
   saveJson(DB_FILE, database);
+  syncAccountToSupabase(account);
   return token;
 }
 
@@ -284,6 +375,7 @@ function resetPassword(account, token, password) {
   account.recovery = null;
   account.sessions = [];
   saveJson(DB_FILE, database);
+  syncAccountToSupabase(account);
   return true;
 }
 
@@ -421,7 +513,14 @@ async function handle(req, res) {
   if (req.method === "OPTIONS") return json(res, 204, {});
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  if (req.method === "GET" && url.pathname === "/api/health") return json(res, 200, { ok: true, service: "roshni-cloud", production: secureProductionConfig() });
+  if (req.method === "GET" && url.pathname === "/api/health") {
+    return json(res, 200, {
+      ok: true,
+      service: "roshni-cloud",
+      supabase: Boolean(SUPABASE_URL && SUPABASE_KEY),
+      production: secureProductionConfig()
+    });
+  }
 
   let body = {};
   if (["POST", "PUT", "DELETE"].includes(req.method)) {
@@ -453,6 +552,7 @@ async function handle(req, res) {
     };
     database.accounts[id] = account;
     const token = createSession(account, req);
+    syncAccountToSupabase(account);
     return json(res, 201, { account: accountView(account), ...(COOKIE_SESSIONS ? { __setCookie: sessionCookie(token) } : { token }) });
   }
 
@@ -499,6 +599,7 @@ async function handle(req, res) {
     const keyFileValue = Object.fromEntries(Object.entries(keyRing.keys).map(([version, key]) => [version, key.toString("base64")]));
     fs.writeFileSync(path.join(DATA_DIR, "encryption.keys.json"), JSON.stringify({ activeVersion: nextVersion, keys: keyFileValue }, null, 2), "utf8");
     saveJson(DB_FILE, database);
+    for (const record of Object.values(database.accounts)) syncAccountToSupabase(record);
     return json(res, 200, { ok: true, activeVersion: nextVersion });
   }
 
@@ -513,6 +614,7 @@ async function handle(req, res) {
     database.accounts[accountId] = deleted;
     saveJson(DELETED_DB_FILE, deletedDatabase);
     saveJson(DB_FILE, database);
+    syncAccountToSupabase(deleted);
     return json(res, 200, { ok: true, account: accountView(deleted) });
   }
 
@@ -532,6 +634,7 @@ async function handle(req, res) {
   if (req.method === "POST" && url.pathname === "/api/auth/logout") {
     account.sessions = (account.sessions || []).filter((item) => item.id !== context.session.id);
     saveJson(DB_FILE, database);
+    syncAccountToSupabase(account);
     return json(res, 200, { ok: true, __setCookie: clearSessionCookie() });
   }
 
@@ -546,6 +649,7 @@ async function handle(req, res) {
     if (sessionId === context.session.id) return error(res, 400, "Use sign out to close the current device session.");
     account.sessions = (account.sessions || []).filter((session) => session.id !== sessionId);
     saveJson(DB_FILE, database);
+    syncAccountToSupabase(account);
     return json(res, 200, { ok: true });
   }
 
@@ -578,6 +682,7 @@ async function handle(req, res) {
     account.revision += 1;
     account.updatedAt = now();
     saveJson(DB_FILE, database);
+    syncAccountToSupabase(account);
     return json(res, 200, { revision: account.revision, updatedAt: account.updatedAt });
   }
 
@@ -598,6 +703,7 @@ async function handle(req, res) {
     delete database.accounts[account.id];
     saveJson(DB_FILE, database);
     saveJson(DELETED_DB_FILE, deletedDatabase);
+    syncAccountToSupabase(deletedDatabase.accounts[account.id]);
     return json(res, 200, { ok: true, restoreUntil: account.restoreUntil, __setCookie: clearSessionCookie() });
   }
 
