@@ -1,0 +1,50 @@
+.sounds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  height: 35px;
+  padding: 0 15px;
+  margin: 25px auto 0;
+  font-size: var(--font-xsm);
+  color: var(--color-foreground-subtle);
+  cursor: pointer;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50px;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-foreground);
+    background-color: var(--color-surface-hover);
+    border-color: var(--color-border-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  &.active::after {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    content: '';
+    background-color: var(--color-inverted-background);
+    border-radius: 50%;
+  }
+}

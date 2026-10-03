@@ -1,0 +1,9 @@
+# Environment variables — never commit these
+.env
+
+# Server data (encrypted accounts, keys)
+server-data/
+
+# OS files
+.DS_Store
+Thumbs.db

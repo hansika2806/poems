@@ -1,0 +1,36 @@
+& .form {
+  display: flex;
+  flex-direction: column;
+
+  & .field {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    margin-bottom: 16px;
+
+    & .label {
+      font-size: var(--font-sm);
+      color: var(--color-foreground);
+
+      & span {
+        color: var(--color-foreground-subtle);
+      }
+    }
+
+    & .input {
+      display: block;
+      height: 40px;
+      padding: 0 8px;
+      color: var(--color-foreground);
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: 0;
+      outline: none;
+
+      &:focus-visible {
+        outline: 2px solid var(--color-focus);
+        outline-offset: 2px;
+      }
+    }
+  }
+}

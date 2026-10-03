@@ -1,0 +1,227 @@
+---
+import { BsSoundwave } from 'react-icons/bs/index';
+
+import { Container } from './container';
+
+import { count as soundCount } from '@/lib/sounds';
+
+const count = soundCount();
+---
+
+<div class="hero">
+  <div aria-hidden="true" class="background">
+    <img alt="" src="/images/hero-background.webp" />
+  </div>
+
+  <Container>
+    <div class="wrapper">
+      <div class="logo-wrapper">
+        <img
+          alt="Faded Moodist Logo"
+          aria-hidden="true"
+          class="logo"
+          height={44}
+          src="/logo.svg"
+          width={44}
+        />
+      </div>
+
+      <h1 class="title">
+        Ambient Sounds<br />For Focus and Calm
+      </h1>
+      <p class="desc">Free and open-source.</p>
+
+      <p class="sounds">
+        <span aria-hidden="true" class="icon">
+          <BsSoundwave />
+        </span>
+        <span class="label"><strong>{count}</strong> ambient sounds</span>
+      </p>
+    </div>
+  </Container>
+</div>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    text-align: center;
+    color: var(--color-on-image);
+    background-color: var(--color-background);
+
+    & .background {
+      --hero-mask: radial-gradient(
+        ellipse 115% 105% at 50% 0%,
+        #000 0%,
+        #000 54%,
+        rgb(0 0 0 / 96%) 60%,
+        rgb(0 0 0 / 84%) 66%,
+        rgb(0 0 0 / 64%) 73%,
+        rgb(0 0 0 / 40%) 80%,
+        rgb(0 0 0 / 18%) 87%,
+        rgb(0 0 0 / 5%) 92%,
+        transparent 96%
+      );
+
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+
+      & img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 58%;
+        mask-image: var(--hero-mask);
+        mask-repeat: no-repeat;
+        -webkit-mask-image: var(--hero-mask);
+        -webkit-mask-repeat: no-repeat;
+      }
+
+      &::after {
+        position: absolute;
+        inset: 0;
+        content: '';
+        background-color: var(--color-image-overlay);
+        mask-image: radial-gradient(
+          ellipse 115% 105% at 50% 0%,
+          #000 0%,
+          #000 50%,
+          rgb(0 0 0 / 75%) 57%,
+          rgb(0 0 0 / 35%) 64%,
+          transparent 71%
+        );
+        mask-repeat: no-repeat;
+        -webkit-mask-image: radial-gradient(
+          ellipse 115% 105% at 50% 0%,
+          #000 0%,
+          #000 50%,
+          rgb(0 0 0 / 75%) 57%,
+          rgb(0 0 0 / 35%) 64%,
+          transparent 71%
+        );
+        -webkit-mask-repeat: no-repeat;
+      }
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 148px 0 210px;
+    }
+
+    & .logo-wrapper {
+      & .logo {
+        display: block;
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 24px;
+        opacity: 0.9;
+        animation-name: logo;
+        animation-duration: 60s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+      }
+    }
+
+    & .title {
+      font-family: var(--font-display);
+      font-size: clamp(2.75rem, 7vw, 4.5rem);
+      font-weight: 400;
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+      text-wrap: balance;
+      text-shadow: 0 2px 24px rgb(0 0 0 / 28%);
+    }
+
+    & .desc {
+      margin-top: 18px;
+      font-size: var(--font-sm);
+      line-height: 1.4;
+      color: var(--color-on-image-subtle);
+    }
+
+    & .sounds {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 11px;
+      margin-top: 22px;
+      font-size: var(--font-xsm);
+      color: var(--color-on-image-subtle);
+      background: var(--color-image-surface);
+      border: 1px solid var(--color-image-border);
+      border-radius: 999px;
+      box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
+      backdrop-filter: blur(14px) saturate(125%);
+
+      & .icon {
+        display: flex;
+        font-size: 14px;
+        color: var(--color-on-image);
+      }
+
+      & .label {
+        line-height: 1;
+
+        & strong {
+          font-weight: 600;
+          color: var(--color-on-image);
+        }
+      }
+    }
+  }
+
+  :global(html[data-theme='light']) .background {
+    --hero-mask: radial-gradient(
+      ellipse 115% 105% at 50% 0%,
+      #000 0%,
+      #000 48%,
+      rgb(0 0 0 / 99%) 54%,
+      rgb(0 0 0 / 96%) 59%,
+      rgb(0 0 0 / 90%) 64%,
+      rgb(0 0 0 / 80%) 69%,
+      rgb(0 0 0 / 68%) 74%,
+      rgb(0 0 0 / 54%) 79%,
+      rgb(0 0 0 / 40%) 84%,
+      rgb(0 0 0 / 27%) 88%,
+      rgb(0 0 0 / 16%) 91%,
+      rgb(0 0 0 / 8%) 94%,
+      rgb(0 0 0 / 3%) 96%,
+      transparent 98%
+    );
+  }
+
+  @media (width <= 600px) {
+    .hero {
+      & .background img {
+        object-position: 56% center;
+      }
+
+      & .wrapper {
+        padding: 112px 0 176px;
+      }
+
+      & .title {
+        font-size: clamp(2rem, 10vw, 2.625rem);
+      }
+    }
+  }
+
+  @keyframes logo {
+    0% {
+      transform: rotate(0);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>

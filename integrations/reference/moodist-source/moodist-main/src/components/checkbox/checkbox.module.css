@@ -1,0 +1,23 @@
+.checkboxRoot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border-strong);
+  border-radius: 0;
+  transition: 0.2s;
+}
+
+.checkboxRoot[data-state='checked'] {
+  background: var(--color-inverted-background);
+  border: 2px solid var(--color-inverted-background);
+}
+
+.checkboxIndicator {
+  font-size: var(--font-2xsm);
+  color: var(--color-inverted-foreground);
+  transform: translateY(2px);
+}

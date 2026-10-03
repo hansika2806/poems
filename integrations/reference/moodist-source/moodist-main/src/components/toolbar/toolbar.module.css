@@ -1,0 +1,20 @@
+.wrapper {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  z-index: 15;
+  width: 100vw;
+  pointer-events: none;
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+}

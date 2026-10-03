@@ -1,0 +1,128 @@
+---
+import { FaGithub } from 'react-icons/fa/index';
+
+import { Binary } from './binary';
+import { Container } from './container';
+import { SpecialButton } from './special-button';
+
+import { generateRandomBinaryString } from '@/helpers/binary';
+
+const initialBinary = generateRandomBinaryString(400);
+---
+
+<section class="source">
+  <Container>
+    <div class="wrapper">
+      <div aria-hidden="true" class="binary">
+        <Binary initialValue={initialBinary} client:visible />
+      </div>
+
+      <div class="copy">
+        <h2>Built in the open.</h2>
+        <p>
+          Moodist is free and open-source. Explore the code, suggest an idea, or
+          help make ambient listening better for everyone.
+        </p>
+      </div>
+
+      <div class="action">
+        <SpecialButton href="https://github.com/remvze/moodist">
+          <FaGithub />
+          View source on GitHub
+        </SpecialButton>
+      </div>
+    </div>
+  </Container>
+</section>
+
+<style>
+  .source {
+    padding: 80px 0 120px;
+
+    & .wrapper {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 48px;
+      align-items: end;
+      padding: 52px 0;
+      overflow: hidden;
+    }
+
+    & .binary {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      width: 48%;
+      height: 112px;
+      overflow: hidden;
+      font-family: 'Nimbus Mono PS', 'Courier New', monospace;
+      font-size: var(--font-2xsm);
+      line-height: 1.35;
+      color: var(--color-foreground-subtler);
+      word-break: break-all;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.28;
+      mask-image: radial-gradient(
+        ellipse at center,
+        #000 20%,
+        rgb(0 0 0 / 92%) 38%,
+        rgb(0 0 0 / 68%) 56%,
+        rgb(0 0 0 / 36%) 72%,
+        rgb(0 0 0 / 12%) 84%,
+        transparent 96%
+      );
+      transform: translateY(-50%);
+    }
+
+    & .copy {
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+
+      & h2 {
+        font-family: var(--font-display);
+        font-size: clamp(2.25rem, 6vw, 3.75rem);
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: -0.035em;
+      }
+
+      & p {
+        max-width: 510px;
+        margin-top: 20px;
+        font-size: var(--font-base);
+        line-height: 1.6;
+        color: var(--color-foreground-subtle);
+      }
+    }
+
+    & .action {
+      position: relative;
+      z-index: 1;
+    }
+
+  }
+
+  @media (width <= 600px) {
+    .source {
+      padding: 64px 0 88px;
+
+      & .wrapper {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        align-items: start;
+        padding: 40px 0;
+      }
+
+      & .binary {
+        display: none;
+      }
+
+      & .copy h2 {
+        font-size: clamp(2.15rem, 11vw, 3rem);
+      }
+    }
+  }
+</style>

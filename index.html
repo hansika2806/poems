@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#14243d" />
+    <meta name="description" content="A quiet writing room for snippets, shayari, and poems." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <title>Roshni aur Lafz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Kalam:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="src/styles.css" />
+    <link rel="stylesheet" href="src/styles/room.css?v=14" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contentPanel">skip to the writing room</a>
+    <div class="app-shell">
+      <header class="topbar">
+        <button class="brand-button" data-tab="sky" aria-label="Open Sky of Thoughts">
+          <span class="brand-mark">✦</span>
+          <span>
+            <strong>roshni aur lafz</strong>
+            <small>a room for the words that stay</small>
+          </span>
+        </button>
+        <div class="topbar-actions">
+          <button class="account-button" id="accountButton" aria-label="Open cloud account"><span>○</span> account</button>
+          <button class="lock-button" id="lockToggle" aria-pressed="false"><span>◌</span> private</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="sky-hero" id="skyStage">
+          <div class="hero-copy">
+            <p class="eyebrow" id="skyDateLabel">the blue hour</p>
+            <h1><span id="skyTitle">Some thoughts</span><br /><em id="skyAccent">arrive as stars.</em></h1>
+            <p class="hero-note" id="skyNote">A sky for the things you almost forgot to say.</p>
+            <div class="hero-actions" aria-hidden="true"><span class="hero-spark">✦</span> stay with the light</div>
+          </div>
+          <div id="skyScene" class="sky-scene-host" aria-live="polite"></div>
+          <div class="hero-caption"><span class="pulse-dot"></span> <span id="skyCaption">your words are gathering above the desk</span></div>
+        </section>
+
+        <section class="workspace-grid">
+          <aside class="left-rail">
+            <div class="rail-intro">
+              <p class="eyebrow">your weather</p>
+              <h2>What kind of<br /><em>evening is this?</em></h2>
+            </div>
+            <div class="mood-list" aria-label="Mood filters">
+              <button class="mood-button active" data-mood="all"><span class="mood-swatch all-swatch"></span> all weather <span>06</span></button>
+              <button class="mood-button" data-mood="restless"><span class="mood-swatch blue-swatch"></span> restless <span>02</span></button>
+              <button class="mood-button" data-mood="tender"><span class="mood-swatch rose-swatch"></span> tender <span>02</span></button>
+              <button class="mood-button" data-mood="hopeful"><span class="mood-swatch gold-swatch"></span> hopeful <span>02</span></button>
+            </div>
+            <button class="capsule-note" id="capsuleButton" type="button">
+              <div class="capsule-icon">⌛</div>
+              <div>
+                <p class="eyebrow">time capsule</p>
+                <strong id="capsuleTitle">time capsule</strong>
+                <small id="capsuleSummary">seal a page for later</small>
+              </div>
+              <span class="lock-glyph">⌑</span>
+            </button>
+            <div class="rail-footnote">
+              <span>06</span>
+              <p>pieces of you<br />kept gently</p>
+            </div>
+          </aside>
+
+          <section class="content-panel" id="contentPanel" aria-live="polite" tabindex="-1"></section>
+          <aside class="reader-panel" id="readerPanel" aria-live="polite"></aside>
+        </section>
+      </main>
+
+      <footer class="footer-bar">
+        <span>made slowly, for the words that return</span>
+        <span class="footer-center">paper / ink / weather</span>
+        <div class="sound-dock" aria-label="Background sound controls">
+          <button class="sound-dock-button" id="soundButton" type="button" aria-pressed="false"><span>◌</span> sound off</button>
+          <button class="sound-dock-stop" id="soundFooterStopButton" type="button">stop</button>
+          <button class="sound-dock-choose" id="soundChooseButton" type="button">choose sound</button>
+        </div>
+      </footer>
+    </div>
+
+    <dialog id="thoughtDialog" class="thought-dialog">
+      <form method="dialog" id="thoughtForm">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">a new star</p>
+        <h2>What is visiting you?</h2>
+        <textarea id="thoughtInput" placeholder="write it before it changes shape…" required></textarea>
+        <input class="thought-tags" id="thoughtTags" placeholder="tags: night, rain, longing" aria-label="Thought tags" />
+        <div class="dialog-row">
+          <select id="thoughtMood" aria-label="Thought mood">
+            <option value="tender">tender</option>
+            <option value="restless">restless</option>
+            <option value="hopeful">hopeful</option>
+          </select>
+          <select id="thoughtSharing" aria-label="Thought sharing"><option value="private">private</option><option value="shareable">shareable</option></select>
+          <button class="primary-button" value="default">place it in the sky <span>↗</span></button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="poemDialog" class="thought-dialog poem-dialog">
+      <form method="dialog" id="poemForm">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">the poem desk</p>
+        <h2 id="poemDialogTitle">Begin a poem</h2>
+        <div class="editor-fields">
+          <label>title <input id="poemTitle" placeholder="give it a door to enter through…" /></label>
+          <div class="editor-two-col">
+          <label>weather <select id="poemMood"><option value="tender">tender</option><option value="restless">restless</option><option value="hopeful">hopeful</option></select></label>
+            <label>source <input id="poemSource" placeholder="written after…" /></label>
+          </div>
+          <label>tags <input id="poemTags" placeholder="night, rain, longing" /></label>
+          <label>sharing <select id="poemSharing"><option value="private">private · keep it here</option><option value="shareable">shareable · make a card</option></select></label>
+          <label>lines <textarea id="poemLines" placeholder="one line per breath…"></textarea></label>
+          <p class="editor-hint">Your draft stays editable. Add reading layers after the poem has found its shape.</p>
+        </div>
+        <div class="dialog-row"><button class="text-button dark-text" value="cancel">leave it for later</button><button class="primary-button" value="default">save poem <span>↗</span></button></div>
+      </form>
+    </dialog>
+
+    <dialog id="capsuleDialog" class="thought-dialog capsule-dialog">
+      <form method="dialog" id="capsuleForm">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">the time capsule room</p>
+        <h2>Leave a page for later.</h2>
+        <p class="capsule-copy">Until its date arrives, the words stay sealed. Not hidden behind a theme: simply kept for the future you.</p>
+        <div id="capsuleList" class="capsule-list"></div>
+        <div class="capsule-form-fields"><label>your sealed note<textarea id="capsuleMessage" placeholder="what should the later you find?"></textarea></label><label>open on <input id="capsuleDate" type="date" /></label></div>
+        <div class="dialog-row"><button type="button" class="text-button dark-text" id="capsuleCancelButton">leave it here</button><button type="submit" class="primary-button">seal the page <span>↗</span></button></div>
+      </form>
+    </dialog>
+
+    <dialog id="yearDialog" class="thought-dialog year-dialog">
+      <form method="dialog">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">a year in poems</p>
+        <div id="yearPanel"></div>
+      </form>
+    </dialog>
+
+    <dialog id="captureDialog" class="thought-dialog capture-dialog">
+      <form method="dialog" id="captureForm">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">the capture table</p>
+        <h2>Bring a poem in.</h2>
+        <p class="capture-intro">Give a half-remembered poem a clean page. Every draft stays editable before it becomes yours.</p>
+        <div class="capture-tabs" role="tablist" aria-label="Capture a poem">
+          <button type="button" class="capture-tab active" data-capture-mode="paste">paste</button>
+          <button type="button" class="capture-tab" data-capture-mode="voice">voice</button>
+          <button type="button" class="capture-tab" data-capture-mode="photo">photo</button>
+        </div>
+        <section class="capture-panel" data-capture-panel="paste">
+          <label>paste a poem<textarea id="captureInput" placeholder="paste loose lines, a screenshot transcription, or a rough draft…"></textarea></label>
+          <button type="button" class="primary-button" id="formatCaptureButton">clean and find couplets <span>↗</span></button>
+        </section>
+        <section class="capture-panel" data-capture-panel="voice" hidden>
+          <p class="capture-panel-note">Speak a draft in your own rhythm. The browser will leave the words here for you to correct.</p>
+          <label>language<select id="captureVoiceLanguage"><option value="hi-IN">Hindi / Devanagari</option><option value="ur-IN">Urdu</option><option value="en-IN">Roman Hinglish / English</option></select></label>
+          <button type="button" class="voice-action" id="captureSpeechButton">speak a draft</button>
+          <button type="button" class="text-button dark-text capture-thought-button" id="saveCaptureThoughtButton">keep this as a thought</button>
+        </section>
+        <section class="capture-panel" data-capture-panel="photo" hidden>
+          <p class="capture-panel-note">Photograph a book page or choose a screenshot. OCR needs a signed-in cloud room and a server-side Vision key.</p>
+          <label>photograph or screenshot<input id="captureImage" type="file" accept="image/*" /></label>
+          <button type="button" class="paste-image-button" id="pasteCaptureImageButton">paste an image</button>
+          <div class="image-paste-target capture-paste-target" id="capturePasteTarget" contenteditable="true" role="textbox" aria-label="Paste a poem page image">click here, then press Ctrl+V</div>
+          <div class="capture-image-preview" id="captureImagePreview" aria-live="polite"></div>
+          <label>script<select id="captureOcrLanguage"><option value="hi">Hindi / Devanagari</option><option value="ur">Urdu</option><option value="en">Roman Hinglish / English</option></select></label>
+          <button type="button" class="primary-button" id="captureOcrButton">read the page <span>↗</span></button>
+        </section>
+        <label>editable draft<textarea id="capturePreview" placeholder="your cleaned poem will appear here…"></textarea></label>
+        <p id="captureStatus" class="capture-status" aria-live="polite"></p>
+        <div class="dialog-row"><button type="button" class="text-button dark-text" id="captureCancelButton">leave it here</button><button type="button" class="primary-button" id="useCaptureButton">use in poem desk <span>↗</span></button></div>
+      </form>
+    </dialog>
+
+    <dialog id="lockDialog" class="thought-dialog lock-dialog">
+      <form method="dialog" id="lockForm">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow" id="lockEyebrow">private room</p>
+        <h2 id="lockTitle">Set your room key</h2>
+        <p class="lock-copy" id="lockCopy">This local lock protects the room on this browser. Your key is never shown back to you.</p>
+        <label class="lock-field">key <input id="lockPin" type="password" inputmode="numeric" minlength="4" autocomplete="new-password" required /></label>
+        <label class="lock-field" id="lockConfirmField">repeat key <input id="lockPinConfirm" type="password" inputmode="numeric" minlength="4" autocomplete="new-password" required /></label>
+        <div class="dialog-row"><button class="text-button dark-text" value="cancel">leave it open</button><button class="primary-button" value="default" id="lockSubmit">set key <span>↗</span></button></div>
+      </form>
+    </dialog>
+
+    <dialog id="soundDialog" class="thought-dialog sound-dialog">
+      <form method="dialog">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">the weather room</p>
+        <h2>Build the air around a poem.</h2>
+        <p class="sound-intro">Layer rain, paper, trains, rooms, wind, and quiet places beneath the voice.</p>
+        <div class="sound-presets" id="soundPresets"></div>
+        <div id="soundMixer"></div>
+      </form>
+    </dialog>
+
+    <dialog id="accountDialog" class="thought-dialog account-dialog">
+      <form method="dialog">
+        <button class="dialog-close" value="cancel" aria-label="Close">×</button>
+        <p class="eyebrow">the cloud room</p>
+        <h2>Keep the room with you.</h2>
+        <div id="accountPanel"></div>
+      </form>
+    </dialog>
+
+    <script type="module" src="src/app.js?v=11"></script>
+    <script type="module" src="src/pwa.js?v=3"></script>
+  </body>
+</html>

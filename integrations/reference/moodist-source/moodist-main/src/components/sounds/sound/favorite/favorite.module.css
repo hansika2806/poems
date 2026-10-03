@@ -1,0 +1,33 @@
+.favoriteButton {
+  display: flex;
+  flex: 0 0 26px;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  line-height: 0;
+  color: var(--color-foreground-subtle);
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-foreground);
+    background-color: var(--color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  &.isFavorite {
+    color: var(--color-foreground);
+  }
+}

@@ -1,0 +1,33 @@
+.button {
+  display: flex;
+  flex-shrink: 0;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  height: 40px;
+  padding: 0 20px;
+  font-size: var(--font-xsm);
+  font-weight: 500;
+  color: var(--color-inverted-foreground);
+  text-decoration: none;
+  cursor: pointer;
+  background-color: var(--color-inverted-background);
+  border: 1px solid var(--color-inverted-background);
+  border-radius: 50px;
+  transition: 0.2s;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-inverted-background-hover);
+  }
+
+  & svg {
+    font-size: var(--font-base);
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Roshni aur Lafz",
+  "short_name": "Roshni aur Lafz",
+  "description": "A quiet writing room for snippets, shayari, and poems.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4efe5",
+  "theme_color": "#14243d",
+  "lang": "en",
+  "icons": [
+    { "src": "assets/roshni-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
