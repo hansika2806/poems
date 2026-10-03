@@ -1,4 +1,8 @@
-const API_BASE = globalThis.ROSHNI_API_BASE || "http://127.0.0.1:4174/api";
+const API_BASE = globalThis.ROSHNI_API_BASE || (
+  typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://127.0.0.1:4174/api"
+    : "/api"
+);
 const SESSION_KEY = "roshni-aur-lafz-cloud-session-v1";
 
 function readSession() {

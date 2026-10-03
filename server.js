@@ -21,7 +21,7 @@ const path = require("node:path");
 })();
 
 const PORT = Number(process.env.PORT || 4174);
-const DATA_DIR = path.join(__dirname, "server-data");
+const DATA_DIR = process.env.VERCEL ? "/tmp/server-data" : path.join(__dirname, "server-data");
 const DB_FILE = path.join(DATA_DIR, "accounts.json");
 const DELETED_DB_FILE = path.join(DATA_DIR, "deleted-accounts.json");
 const KEY_FILE = path.join(DATA_DIR, "encryption.key");
@@ -261,8 +261,8 @@ function clearSessionCookie() {
 
 function json(res, status, payload) {
   const headers = {
-    "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Origin": process.env.VERCEL ? "*" : ALLOWED_ORIGIN,
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-device-label",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Access-Control-Allow-Credentials": "true",
     "Cache-Control": "no-store",
@@ -710,20 +710,24 @@ async function handle(req, res) {
   return error(res, 404, "Cloud route not found.");
 }
 
-if (PRODUCTION_MODE && (!process.env.TLS_KEY_FILE || !process.env.TLS_CERT_FILE || !COOKIE_SESSIONS || !ADMIN_KEY)) {
+if (!process.env.VERCEL && PRODUCTION_MODE && (!process.env.TLS_KEY_FILE || !process.env.TLS_CERT_FILE || !COOKIE_SESSIONS || !ADMIN_KEY)) {
   throw new Error("Production mode requires TLS_KEY_FILE, TLS_CERT_FILE, COOKIE_SESSIONS=true, and ROSHNI_ADMIN_KEY.");
 }
 
-const serverFactory = process.env.TLS_KEY_FILE && process.env.TLS_CERT_FILE
-  ? https.createServer({ key: fs.readFileSync(process.env.TLS_KEY_FILE), cert: fs.readFileSync(process.env.TLS_CERT_FILE) }, (req, res) => handle(req, res).catch((err) => { console.error(err); error(res, 500, "The cloud room could not complete that request."); }))
-  : http.createServer((req, res) => {
-  handle(req, res).catch((err) => {
-    console.error(err);
-    error(res, 500, "The cloud room could not complete that request.");
+if (require.main === module) {
+  const serverFactory = process.env.TLS_KEY_FILE && process.env.TLS_CERT_FILE
+    ? https.createServer({ key: fs.readFileSync(process.env.TLS_KEY_FILE), cert: fs.readFileSync(process.env.TLS_CERT_FILE) }, (req, res) => handle(req, res).catch((err) => { console.error(err); error(res, 500, "The cloud room could not complete that request."); }))
+    : http.createServer((req, res) => {
+    handle(req, res).catch((err) => {
+      console.error(err);
+      error(res, 500, "The cloud room could not complete that request.");
+    });
   });
-});
 
-serverFactory.listen(PORT, HOST, () => {
-  const protocol = process.env.TLS_KEY_FILE && process.env.TLS_CERT_FILE ? "https" : "http";
-  console.log(`Roshni cloud API listening on ${protocol}://${HOST}:${PORT}`);
-});
+  serverFactory.listen(PORT, HOST, () => {
+    const protocol = process.env.TLS_KEY_FILE && process.env.TLS_CERT_FILE ? "https" : "http";
+    console.log(`Roshni cloud API listening on ${protocol}://${HOST}:${PORT}`);
+  });
+}
+
+module.exports = { handle, loadFromSupabase };
