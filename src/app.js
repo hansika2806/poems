@@ -259,14 +259,23 @@ function renderSkyStage() {
 
 function renderSkyList() {
   const affirmations = Array.isArray(workspace.affirmations) ? workspace.affirmations : [];
+  const pick = affirmations.length
+    ? affirmations[Math.floor(Math.random() * affirmations.length)]
+    : null;
+
+  const affirmationBlock = pick
+    ? `<div class="home-affirmation-display" aria-live="polite">
+        <span class="home-affirmation-mark">✦</span>
+        <blockquote class="home-affirmation-text">${escapeHtml(pick.text)}</blockquote>
+       </div>`
+    : `<div class="home-affirmation-display home-affirmation-empty" aria-live="polite">
+        <span class="home-affirmation-mark">✦</span>
+        <p class="home-affirmation-nudge">Your words will appear here.<br><button type="button" class="affirmation-nudge-link" data-tab="shelf">Write your first affirmation in the library ↗</button></p>
+       </div>`;
+
   contentPanel.innerHTML = `
     <section class="affirmation-garden">
-      <div class="affirmation-heading"><div><p class="eyebrow">a little lower than the sky</p><h2>Words to <em>return to.</em></h2><p>Keep the sentences that steady you. Write them in your own hand and let them stay visible.</p></div><span class="affirmation-mark">✦</span></div>
-      <form class="affirmation-form" id="affirmationForm">
-        <label for="affirmationInput">write an affirmation</label>
-        <div class="affirmation-entry"><textarea id="affirmationInput" rows="2" placeholder="I am allowed to begin again…"></textarea><button class="primary-button" type="submit">keep this word <span>↗</span></button></div>
-      </form>
-      <div class="affirmation-list" aria-live="polite">${affirmations.length ? affirmations.map((affirmation) => `<article class="affirmation-card"><span>✦</span><p>${escapeHtml(affirmation.text)}</p></article>`).join("") : `<article class="affirmation-card affirmation-empty"><span>✦</span><p>Your first affirmation will have a place here.</p></article>`}</div>
+      ${affirmationBlock}
     </section>
     <section class="home-doors" aria-label="Continue into your writing room">
       <button class="home-door home-door-write" data-tab="write"><span class="door-kicker">make something</span><strong>Write a poem</strong><span class="door-arrow">↗</span></button>
@@ -362,8 +371,9 @@ function renderShelf() {
   const collected = visiblePoems.filter((poem) => poem.owner === "collected");
   const affirmations = Array.isArray(workspace.affirmations) ? workspace.affirmations : [];
   contentPanel.innerHTML = `
-    <section class="library-page"><div class="page-back-row"><button type="button" class="back-link" data-tab="sky">← back home</button><span>your private shelves</span></div><div class="library-heading"><div><p class="eyebrow">the library</p><h1>Keep what <em>stays.</em></h1><p>Three places for the poems you make, the poems you collect, and the words that carry you.</p></div>${searchField()}</div><div class="library-columns"><section class="library-column"><div class="column-heading"><h2>Mine</h2><span>${mine.length}</span></div>${mine.length ? mine.map(bookletCard).join("") : `<div class="library-empty">Your poems will live here.</div>`}<button type="button" class="column-add" data-tab="write">＋ write a poem</button></section><section class="library-column collected-column"><div class="column-heading"><h2>Collected</h2><span>${collected.length}</span></div>${collected.length ? collected.map(bookletCard).join("") : `<div class="library-empty">Save a poem that found you.</div>`}<button type="button" class="column-add" id="captureButton">＋ bring a poem</button></section><section class="library-column affirmation-column"><div class="column-heading"><h2>Affirmations</h2><span>${affirmations.length}</span></div>${affirmations.length ? affirmations.map((affirmation) => `<article class="library-affirmation"><span>✦</span><p>${escapeHtml(affirmation.text)}</p></article>`).join("") : `<div class="library-empty">The sentences you choose to believe will live here.</div>`}<button type="button" class="column-add" data-tab="sky">＋ write an affirmation</button></section></div></section>`;
+    <section class="library-page"><div class="page-back-row"><button type="button" class="back-link" data-tab="sky">← back home</button><span>your private shelves</span></div><div class="library-heading"><div><p class="eyebrow">the library</p><h1>Keep what <em>stays.</em></h1><p>Three places for the poems you make, the poems you collect, and the words that carry you.</p></div>${searchField()}</div><div class="library-columns"><section class="library-column"><div class="column-heading"><h2>Mine</h2><span>${mine.length}</span></div>${mine.length ? mine.map(bookletCard).join("") : `<div class="library-empty">Your poems will live here.</div>`}<button type="button" class="column-add" data-tab="write">＋ write a poem</button></section><section class="library-column collected-column"><div class="column-heading"><h2>Collected</h2><span>${collected.length}</span></div>${collected.length ? collected.map(bookletCard).join("") : `<div class="library-empty">Save a poem that found you.</div>`}<button type="button" class="column-add" id="captureButton">＋ bring a poem</button></section><section class="library-column affirmation-column"><div class="column-heading"><h2>Affirmations</h2><span>${affirmations.length}</span></div>${affirmations.length ? affirmations.map((affirmation) => `<article class="library-affirmation"><span>✦</span><p>${escapeHtml(affirmation.text)}</p></article>`).join("") : `<div class="library-empty">The sentences you choose to believe will live here.</div>`}<form class="library-affirmation-form" id="affirmationForm"><textarea id="affirmationInput" rows="2" placeholder="I am allowed to begin again…"></textarea><button class="column-add" type="submit">＋ keep this word</button></form></section></div></section>`;
 }
+
 
 function captionMarkup(lines) {
   const captions = state.captions.length ? state.captions : lines.map((text, index) => ({ index, text, start: null, end: null }));
