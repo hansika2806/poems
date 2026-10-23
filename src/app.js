@@ -294,7 +294,8 @@ function snippetCard(snippet) {
 function selectedEditorPoem() {
   const poem = state.editingPoemId ? poems.find((item) => item.id === state.editingPoemId) : null;
   const draft = state.editingPoemId ? {} : (workspace.poemDraft || {});
-  const lines = String(draft.lines ?? poem?.lines?.join("\n") ?? "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const rawLines = String(draft.lines ?? poem?.lines?.join("\n") ?? "").split(/\r?\n/);
+  const lines = rawLines.map((line) => line.trim());
   return {
     ...(poem || {}),
     id: poem?.id || "editor-preview",
@@ -342,9 +343,9 @@ function renderDesk() {
       <form class="poem-workspace-form" id="poemWorkspaceForm">
         <div class="poem-editor-main">
           <label class="editor-title-field" for="workspacePoemTitle"><span>title</span><input id="workspacePoemTitle" value="${escapeAttribute(draft.title ?? (state.editingPoemId ? poem.title : ""))}" placeholder="give it a door to enter through…" /></label>
-          <label class="editor-lines-field" for="workspacePoemLines"><span>lines</span><textarea id="workspacePoemLines" rows="13" placeholder="one line per breath…">${escapeHtml(draft.lines ?? (state.editingPoemId ? poem.lines.join("\n") : ""))}</textarea></label>
+          <label class="editor-lines-field" for="workspacePoemLines"><span>lines</span><div class="editor-notepad-wrap" id="editorNotepad"><textarea id="workspacePoemLines" rows="13" placeholder="one line per breath…">${escapeHtml(draft.lines ?? (state.editingPoemId ? poem.lines.join("\n") : ""))}</textarea><div class="scrapbook-layer editor-notepad-layer" aria-label="Poem stickers">${scrapbookMarkup(selectedEditorPoem())}${imageMarkup(selectedEditorPoem())}</div></div></label>
           <p class="editor-status" id="poemEditorStatus" aria-live="polite">Your writing stays here while you work.</p>
-          <section class="editor-artboard-section"><div class="editor-artboard-heading"><div><p class="eyebrow">the page itself</p><h2>Arrange the room.</h2></div><p>Choose an image, then drag it on the page. Use the corner and round handles for quick adjustments.</p></div>${poemArtboardMarkup(poem, poem.lines, "editorPoemArtboard")}</section>
+
           ${soundChoiceMarkup()}
         </div>
         <aside class="poem-editor-side">
@@ -1438,7 +1439,7 @@ document.addEventListener("paste", (event) => {
   const imageFile = imageItem.getAsFile();
   const captureTarget = event.target.closest?.("#capturePasteTarget, #captureDialog");
   // Accept paste anywhere in the poem workspace form or the designated paste target
-  const editorTarget = event.target.closest?.("#workspaceImagePasteTarget, #poemWorkspaceForm, .poem-desk-page, #editorPoemArtboard");
+  const editorTarget = event.target.closest?.("#workspaceImagePasteTarget, #poemWorkspaceForm, .poem-desk-page, #editorNotepad");
   if (captureDialog?.open && captureTarget) {
     event.preventDefault();
     setCaptureImage(imageFile);
@@ -1452,7 +1453,7 @@ document.addEventListener("pointerdown", (event) => {
   // Handle image resize (bottom-right corner handle)
   const resizeHandle = event.target.closest?.("[data-image-resize]");
   if (resizeHandle && state.tab === "write") {
-    const artboard = document.querySelector("#editorPoemArtboard");
+    const artboard = document.querySelector("#editorNotepad");
     const image = state.editorImages.find((img) => img.id === resizeHandle.dataset.imageResize);
     if (artboard && image) {
       const imageNode = document.querySelector(`[data-image-id="${CSS.escape(image.id)}"]`);
@@ -1472,7 +1473,7 @@ document.addEventListener("pointerdown", (event) => {
   // Handle image rotate (top-right corner handle)
   const rotateHandle = event.target.closest?.("[data-image-rotate]");
   if (rotateHandle && state.tab === "write") {
-    const artboard = document.querySelector("#editorPoemArtboard");
+    const artboard = document.querySelector("#editorNotepad");
     const image = state.editorImages.find((img) => img.id === rotateHandle.dataset.imageRotate);
     if (artboard && image) {
       const imageNode = document.querySelector(`[data-image-id="${CSS.escape(image.id)}"]`);
@@ -1525,7 +1526,7 @@ document.addEventListener("pointerdown", (event) => {
   // Handle image drag in editor (move)
   const imageBtn = event.target.closest?.("[data-image-id]");
   if (imageBtn && state.tab === "write" && !event.target.closest("[data-image-resize], [data-image-rotate]")) {
-    const artboard = document.querySelector("#editorPoemArtboard");
+    const artboard = document.querySelector("#editorNotepad");
     const image = state.editorImages.find((img) => img.id === imageBtn.dataset.imageId);
     if (artboard && image) {
       state.selectedImageId = image.id;
@@ -1541,7 +1542,7 @@ document.addEventListener("pointerdown", (event) => {
   // Handle decoration drag in editor artboard (write mode) — skip when clicking handles
   const editorDecoItem = event.target.closest?.(".decoration-item");
   if (editorDecoItem && state.tab === "write" && !event.target.closest("[data-deco-resize], [data-deco-rotate]")) {
-    const artboard = document.querySelector("#editorPoemArtboard");
+    const artboard = document.querySelector("#editorNotepad");
     const decorations = poemDecorations(currentPoem());
     const decoration = decorations.find((entry) => entry.id === editorDecoItem.dataset.decorationId);
     if (artboard && decoration) {
@@ -2221,7 +2222,13 @@ document.querySelector("#thoughtForm")?.addEventListener("submit", (event) => {
 function saveCurrentPoem(event) {
   event.preventDefault();
   const draft = currentPoemDraft();
-  const lines = draft.lines.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const rawLines = draft.lines.split(/\r?\n/).map((line) => line.trim());
+  // Remove leading/trailing blank lines only, preserve interior blank lines (stanza gaps)
+  let start = 0;
+  let end = rawLines.length - 1;
+  while (start <= end && !rawLines[start]) start++;
+  while (end >= start && !rawLines[end]) end--;
+  const lines = rawLines.slice(start, end + 1);
   if (!lines.length) {
     const status = document.querySelector("#poemEditorStatus");
     if (status) status.textContent = "Give the page one line before you leave it.";

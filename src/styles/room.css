@@ -253,9 +253,13 @@ button, input, select, textarea { font-family: var(--room-ui); }
 .editor-title-field input { width: 100%; padding: 0 0 14px; border: 0; border-bottom: 1px solid var(--room-ink); outline: 0; background: transparent; color: var(--room-ink); font-family: var(--room-display); font-size: clamp(37px, 5vw, 64px); line-height: 1; }
 .editor-title-field input:focus { border-color: var(--room-gold); }
 .editor-lines-field { margin-top: 48px; }
-.editor-lines-field textarea { display: block; width: 100%; min-height: 520px; padding: 26px 28px; resize: vertical; border: 1px solid rgba(16,35,61,0.22); outline: 0; background: rgba(255,250,241,0.72); color: var(--room-ink); font-family: var(--room-display); font-size: 27px; line-height: 1.55; box-shadow: 10px 12px 0 rgba(16,35,61,0.035); }
-.editor-lines-field textarea:focus { border-color: var(--room-gold); box-shadow: 10px 12px 0 rgba(196,139,30,0.1); }
-.editor-lines-field textarea::placeholder { color: #89929d; }
+/* Notepad wrapper — makes the sticker layer sit on top of the textarea */
+.editor-notepad-wrap { position: relative; display: block; }
+.editor-notepad-wrap textarea { display: block; width: 100%; min-height: 520px; padding: 26px 28px; resize: vertical; border: 1px solid rgba(16,35,61,0.22); outline: 0; background: rgba(255,250,241,0.72); color: var(--room-ink); font-family: var(--room-display); font-size: 27px; line-height: 1.55; box-shadow: 10px 12px 0 rgba(16,35,61,0.035); }
+.editor-notepad-wrap textarea:focus { border-color: var(--room-gold); box-shadow: 10px 12px 0 rgba(196,139,30,0.1); }
+.editor-notepad-wrap textarea::placeholder { color: #89929d; }
+/* Sticker overlay — sits over the notepad, pointer-events none so typing still works; sticker buttons re-enable events */
+.editor-notepad-layer { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 .editor-status { min-height: 22px; margin: 15px 0 0; color: #687380; font-family: var(--room-ui); font-size: 13px; }
 .poem-editor-side { display: grid; align-content: start; gap: 30px; }
 .editor-details { display: grid; gap: 18px; padding: 24px; border-top: 3px solid var(--room-ink); border-bottom: 1px solid var(--room-line); background: rgba(255,250,241,0.45); }
@@ -403,7 +407,7 @@ button, input, select, textarea { font-family: var(--room-ui); }
   .reading-stage .sticker-column { order: 2; }
   .reader-panel { padding: 26px 18px !important; }
   .poem-editor-main { width: 100%; }
-  .editor-lines-field textarea { min-height: 420px; padding: 20px; font-size: 24px; }
+  .editor-lines-field textarea, .editor-notepad-wrap textarea { min-height: 420px; padding: 20px; font-size: 24px; }
 }
 
 /* Focused reading and sound controls */
